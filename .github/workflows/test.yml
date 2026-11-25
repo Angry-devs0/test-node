@@ -47,8 +47,33 @@ jobs:
           path: kubernetes-k5s
           role: test
           kubernetesTokenPath: /var/run/secrets/kubernetes.io/serviceaccount/token
+          outputToken: true
           secrets: |
             "${{ vars.VAULT_SECRETS_PATH }}" ** | MYAPP_ ;
+
+      - name: Debug Vault permissions
+        if: always()
+        shell: bash
+        env:
+          VAULT_TOKEN: ${{ steps.vault.outputs.vault_token }}
+          VAULT_ADDR: http://vault.vault.svc.cluster.local:8200
+        run: |
+          if [[ -z "$VAULT_TOKEN" ]]; then
+            echo "Vault token output is empty"
+            exit 1
+          fi
+
+          curl -sS \
+            -H "X-Vault-Token: $VAULT_TOKEN" \
+            -X POST \
+            -d '{
+              "paths": [
+                "secret/data/test/vite",
+                "sys/internal/ui/mounts/secret/data/test/vite"
+              ]
+            }' \
+            "$VAULT_ADDR/v1/sys/capabilities-self" |
+            jq .
 
       - name: Generate secrets file
         shell: bash
