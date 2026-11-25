@@ -14,30 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Debug Kubernetes identity
-        shell: bash
-        run: |
-          echo "=== Kubernetes identity ==="
-
-          echo "Namespace:"
-          cat /var/run/secrets/kubernetes.io/serviceaccount/namespace
-
-          echo "ServiceAccount token file:"
-          ls -l /var/run/secrets/kubernetes.io/serviceaccount/
-
-          echo "JWT claims:"
-          TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-
-          PAYLOAD=$(echo "$TOKEN" | cut -d '.' -f 2)
-          PAYLOAD="${PAYLOAD}$(printf '%*s' $(( (4 - ${#PAYLOAD} % 4) % 4 )) '' | tr ' ' '=')"
-
-          echo "$PAYLOAD" | base64 -d 2>/dev/null | jq '{
-            sub,
-            iss,
-            aud,
-            exp
-          }'
-
       - name: Conect to vault
         id: vault
         uses: hashicorp/vault-action@v4
@@ -50,30 +26,6 @@ jobs:
           outputToken: true
           secrets: |
             ${{ vars.VAULT_SECRETS_PATH }} ** | MYAPP_ ;
-
-      - name: Debug Vault permissions
-        if: always()
-        shell: bash
-        env:
-          VAULT_TOKEN: ${{ steps.vault.outputs.vault_token }}
-          VAULT_ADDR: http://vault.vault.svc.cluster.local:8200
-        run: |
-          if [[ -z "$VAULT_TOKEN" ]]; then
-            echo "Vault token output is empty"
-            exit 1
-          fi
-
-          curl -sS \
-            -H "X-Vault-Token: $VAULT_TOKEN" \
-            -X POST \
-            -d '{
-              "paths": [
-                "secret/data/test/vite",
-                "sys/internal/ui/mounts/secret/data/test/vite"
-              ]
-            }' \
-            "$VAULT_ADDR/v1/sys/capabilities-self" |
-            jq .
 
       - name: Generate secrets file
         shell: bash
@@ -93,6 +45,7 @@ jobs:
       - name: Login
         uses: docker/login-action@v4
         with:
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
