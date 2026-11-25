@@ -48,6 +48,8 @@ jobs:
           driver: kubernetes
           driver-opts: |
             rootless=true
+            namespace=runner
+            serviceaccount=runner-builder
 
       - name: Login
         uses: docker/login-action@v4
