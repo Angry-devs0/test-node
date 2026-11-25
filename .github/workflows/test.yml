@@ -49,7 +49,7 @@ jobs:
           kubernetesTokenPath: /var/run/secrets/kubernetes.io/serviceaccount/token
           outputToken: true
           secrets: |
-            "${{ vars.VAULT_SECRETS_PATH }}" ** | MYAPP_ ;
+            ${{ vars.VAULT_SECRETS_PATH }} ** | MYAPP_ ;
 
       - name: Debug Vault permissions
         if: always()
