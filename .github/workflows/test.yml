@@ -42,6 +42,13 @@ jobs:
             printf '%s=%s\n' "$key" "$value" >> .build.env
           done < <(env)
 
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver: kubernetes
+          driver-opts: |
+            rootless=true
+
       - name: Login
         uses: docker/login-action@v4
         with:
