@@ -1,0 +1,21 @@
+ARG NODE_VERSION=24
+ARG NGINX_VERSION=stable-alpine
+
+FROM node:${NODE_VERSION}-alpine AS build
+
+WORKDIR /build
+
+COPY package*.json ./
+RUN npm i
+
+COPY index.html tsconfig*.json vite.config.ts ./
+COPY public ./public
+COPY src ./src
+
+RUN --mount=type=secret,id=envfile . /run/secrets/envfile && npm run build
+
+FROM nginx:${NGINX_VERSION}
+
+COPY --from=build /build/dist /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]
