@@ -79,6 +79,8 @@ jobs:
         shell: bash
         run: |
           umask 0770
+          touch .build.env
+          chmod 600 .build.env
           : > .build.env
 
           while IFS='=' read -r key value; do
