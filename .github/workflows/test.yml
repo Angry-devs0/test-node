@@ -78,7 +78,7 @@ jobs:
       - name: Generate secrets file
         shell: bash
         run: |
-          umask 0700
+          umask 0770
           : > .build.env
 
           while IFS='=' read -r key value; do
