@@ -12,7 +12,11 @@ COPY index.html tsconfig*.json vite.config.ts ./
 COPY public ./public
 COPY src ./src
 
-RUN --mount=type=secret,id=envfile . /run/secrets/envfile && npm run build
+RUN --mount=type=secret,id=envfile \
+    set -a && \
+    . /run/secrets/envfile && \
+    set +a && \
+    npm run build
 
 FROM nginx:${NGINX_VERSION}
 

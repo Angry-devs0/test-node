@@ -47,7 +47,6 @@ jobs:
               clean_key="${clean_key^^}"
               printf '%s=%s\n' "$clean_key" "$value" >> .build.env
             fi
-            cat .build.env
           done < <(env)
 
       - name: Set up Buildx
