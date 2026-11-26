@@ -69,7 +69,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: Dockerfile.test
-          tags: Angry-devs0/test-node:latest,Angry-devs0/test-node:${{ github.sha }}
+          tags: ghcr.io/Angry-devs0/test-node:latest,ghcr.io/Angry-devs0/test-node:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           secret-files: |
