@@ -35,15 +35,18 @@ jobs:
         shell: bash
         run: |
           umask 0770
-          touch .build.env
-          chmod 600 .build.env
           : > .build.env
+          chmod 600 .build.env
 
           while IFS='=' read -r key value; do
-            [[ "$key" == MYAPP_* ]] || continue
+            key="${key%$'\r'}"
+            value="${value%$'\r'}"
 
-            key="${key#MYAPP_}"
-            printf '%s=%s\n' "$key" "$value" >> .build.env
+            if [[ "$key" == MYAPP_* ]]; then
+              clean_key="${key#MYAPP_}"
+              clean_key="${clean_key^^}"
+              printf '%s=%s\n' "$clean_key" "$value" >> .build.env
+            fi
           done < <(env)
 
       - name: Set up Buildx
